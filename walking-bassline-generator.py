@@ -13,11 +13,11 @@
 
 from random import randint
 
-# dict holding chord quality and tuple as number of fifths above root for tones
+# dict holding chord quality and tuple as number of semitones above root
 # circle of fifths for reference : https://i.imgur.com/ZwMH969.png
 CHORDS = {
-    'major' : (0, 4, 1, 0),
-    'minor' : (0, 9, 1, 0),
+    'major' : (0, 4, 7, 12),
+    'minor' : (0, 3, 7, 12),
     'maj7' : (0, 4, 1, 5, 0),
     'min7' : (0, 9, 1, 10, 0),
     'dom7' : (0, 4, 1, 10, 0)
@@ -170,7 +170,11 @@ def chordToneFinder(chordTuple):
         fifth = ((tones[2] + chordTuple[0]) ) % 12
         octave = ((tones[3] + chordTuple[0]) ) % 12
         print("Root, third, fifth, octave: ", root, third, fifth, octave)##DEBUG
-        thirdsStack = (FIFTHS[root], FIFTHS[third], FIFTHS[fifth], FIFTHS[octave])
+        thirdsStack = (
+        NOTESLIST[root],
+        NOTESLIST[third],
+        NOTESLIST[fifth],
+        NOTESLIST[octave])
         print("thirdsStack in chordToneFinder is: ", thirdsStack)  ##DEBUG
         return thirdsStack
     if quality == 'minor':
