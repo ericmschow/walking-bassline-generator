@@ -18,9 +18,9 @@ from random import randint
 CHORDS = {
     'major' : (0, 4, 7, 12),
     'minor' : (0, 3, 7, 12),
-    'maj7' : (0, 4, 1, 5, 0),
-    'min7' : (0, 9, 1, 10, 0),
-    'dom7' : (0, 4, 1, 10, 0)
+    'maj7' : (0, 4, 7, 11, 12),
+    'min7' : (0, 3, 7, 10, 12),
+    'dom7' : (0, 4, 7, 10, 12)
 }
 
 # dict holding note names and number 1-12 for later calculating distance
@@ -126,12 +126,24 @@ def rootFinder(chordListItem):
         if len(chordListItem) == 1:
             root = NOTES[chordListItem[0].upper()]
             print("Notes lookup for root in rootFinder is: ",root)    ## DEBUG
-        elif len(chordListItem) == 2:
+        elif len(chordListItem) == 2 and chordListItem[1] != 'm': #gets flats/sharps
             compoundRoot = '{}{}'.format(chordListItem[0].upper(),
                 chordListItem[1].lower())
             print("compoundRoot in rootFinder is: ",compoundRoot)                     ## DEBUG
             print("Notes lookup for root is: ",NOTES[compoundRoot])              ## DEBUG
             return NOTES[compoundRoot]
+        elif len(chordListItem) == 2 and chordListItem[1] == 'm': #eg Am, Em
+            root = NOTES[chordListItem[0].upper()]
+            print("Notes lookup for minor root is: ", root)         ## DEBUG
+        elif len(chordListItem) == 5:
+            root = NOTES[chordListItem[0].upper()]
+        elif len(chordListItem) == 6:
+            compoundRoot = '{}{}'.format(chordListItem[0].upper(),
+                chordListItem[1].lower())
+            print("compoundRoot in rootFinder is: ",compoundRoot)                     ## DEBUG
+            print("Notes lookup for root is: ",NOTES[compoundRoot])              ## DEBUG
+            return NOTES[compoundRoot]
+
         else:
             print("Error in rootFinder function string block.")
     if type(chordListItem == tuple):
@@ -162,34 +174,45 @@ def notePrinter(chordTuple):
 def chordToneFinder(chordTuple):
     quality = chordTuple[1]
     tones = CHORDS[quality]
-    print("tuple in chordToneFinder is: ", chordTuple)          ## DEBUG
-    print("tones in chordToneFinder is: ", tones)               ## DEBUG
-    if quality == 'major':
+    #print("tuple in chordToneFinder is: ", chordTuple)          ## DEBUG
+    #print("tones in chordToneFinder is: ", tones)               ## DEBUG
+    if quality == 'major' or quality == 'minor':
         root = (tones[0] + chordTuple[0] ) % 12
         third = ((tones[1] + chordTuple[0]) ) % 12
         fifth = ((tones[2] + chordTuple[0]) ) % 12
         octave = ((tones[3] + chordTuple[0]) ) % 12
-        print("Root, third, fifth, octave: ", root, third, fifth, octave)##DEBUG
+        #print("Root, third, fifth, octave: ", root, third, fifth, octave)##DEBUG
         thirdsStack = (
         NOTESLIST[root],
         NOTESLIST[third],
         NOTESLIST[fifth],
         NOTESLIST[octave])
-        print("thirdsStack in chordToneFinder is: ", thirdsStack)  ##DEBUG
+        #print("thirdsStack in chordToneFinder is: ", thirdsStack)  ##DEBUG
         return thirdsStack
-    if quality == 'minor':
-        print("Minor not yet implemented.")
-    if quality == 'min7':
-        print("Extensions not yet implemented.")
+    elif quality == 'min7' or quality == 'maj7' or quality == 'dom7':
+        root = (tones[0] + chordTuple[0] ) % 12
+        third = ((tones[1] + chordTuple[0]) ) % 12
+        fifth = ((tones[2] + chordTuple[0]) ) % 12
+        seventh = (tones[3] + chordTuple[0]) % 12
+        octave = ((tones[4] + chordTuple[0]) ) % 12
+        #print("Root, third, fifth, seventh octave: ", root, third, fifth, seventh octave)##DEBUG
+        thirdsStack = (
+        NOTESLIST[root],
+        NOTESLIST[third],
+        NOTESLIST[fifth],
+        NOTESLIST[seventh],
+        NOTESLIST[octave])
+        #print("thirdsStack in chordToneFinder is: ", thirdsStack)  ##DEBUG
+        return thirdsStack
     # etc with other qualities later
 
 def main():
     chordList = chordParser(chordPrompter())
-    print("chordList is: ",chordList)                            ## DEBUG
+    #print("chordList is: ",chordList)                            ## DEBUG
     tupleList = listUnpacker(chordList)
-    print("tupleList is: ",tupleList)                            ## DEBUG
+    #print("tupleList is: ",tupleList)                            ## DEBUG
     for chord in tupleList:
-        print("Chord tuple is: ",chord)                            ## DEBUG
+        #print("Chord tuple is: ",chord)                            ## DEBUG
         chordToneFinder(chord)
         print(chordToneFinder(chord))
 
