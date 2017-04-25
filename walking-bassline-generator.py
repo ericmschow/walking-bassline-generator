@@ -23,7 +23,7 @@ CHORDS = {
     'dom7' : (0, 4, 7, 10, 12)
 }
 
-# dict holding note names and number 1-12 for later calculating distance
+# dict holding note names and number 0-11 for later calculating distance
 NOTES = {
     'C' : 0,
     'C#' : 1,
@@ -43,7 +43,7 @@ NOTES = {
     'Bb' : 10,
     'B' : 11
 }
-
+# dict holding numbers 0-11 and notes C-B ## replaced with NOTESLIST
 INVERSE = {
     0 : 'C',
     1 : 'C#/Db',
@@ -125,23 +125,23 @@ def rootFinder(chordListItem):
     if type(chordListItem == str):
         if len(chordListItem) == 1:
             root = NOTES[chordListItem[0].upper()]
-            print("Notes lookup for root in rootFinder is: ",root)    ## DEBUG
+            #print("Notes lookup for root in rootFinder is: ",root)    ## DEBUG
         elif len(chordListItem) == 2 and chordListItem[1] != 'm': #gets flats/sharps
             compoundRoot = '{}{}'.format(chordListItem[0].upper(),
                 chordListItem[1].lower())
-            print("compoundRoot in rootFinder is: ",compoundRoot)                     ## DEBUG
-            print("Notes lookup for root is: ",NOTES[compoundRoot])              ## DEBUG
+            #print("compoundRoot in rootFinder is: ",compoundRoot)                     ## DEBUG
+            #print("Notes lookup for root is: ",NOTES[compoundRoot])              ## DEBUG
             return NOTES[compoundRoot]
         elif len(chordListItem) == 2 and chordListItem[1] == 'm': #eg Am, Em
             root = NOTES[chordListItem[0].upper()]
-            print("Notes lookup for minor root is: ", root)         ## DEBUG
+            #print("Notes lookup for minor root is: ", root)         ## DEBUG
         elif len(chordListItem) == 5:
             root = NOTES[chordListItem[0].upper()]
         elif len(chordListItem) == 6:
             compoundRoot = '{}{}'.format(chordListItem[0].upper(),
                 chordListItem[1].lower())
-            print("compoundRoot in rootFinder is: ",compoundRoot)                     ## DEBUG
-            print("Notes lookup for root is: ",NOTES[compoundRoot])              ## DEBUG
+        #    print("compoundRoot in rootFinder is: ",compoundRoot)                     ## DEBUG
+        #    print("Notes lookup for root is: ",NOTES[compoundRoot])              ## DEBUG
             return NOTES[compoundRoot]
 
         else:
@@ -162,13 +162,32 @@ def qualityFinder(chordListItem):
     else:
         return 'major'
 
-# returns random note in chord from tuple
-def randomizer(chordTuple):
-    pass
+# returns list of randomized notes
+def noteFinder(tonesTupleList):
+    timeSig = 4 #hardcode 4/4 until implementing variable time signature
+    randomTonesTotal = []
+    for chord in tonesTupleList:
+        print('Chord tone tuple at start of noteFinder For loop is: ',chord)            ## DEBUG
+        randomTonesChord = []
+        for i in range(timeSig):  #iterate for number of beats in measure
+            note = chord[randint(0, len(chord)-1)] # randomly pick from notes in chord
+            # if block here is to prevent notes from being repeated
+            if len(randomTonesChord) == 0:  # if no tone in list already
+                pass # no need to check anything
+            # except IndexError:
+            #     randomTonesChord.append(note)
+            #     print("while loop in noteFinder triggered.")        ##DEBUG
+            else:
+                while note == randomTonesChord[i-1]:
+                    print("While loop in noteFinder triggered on note ", note)         ## DEBUG
+                    note = chord[randint(0, len(chord)-1)]
+            randomTonesChord.append(note)
+            print ('randomTonesChord in i loop is ', randomTonesChord)  ##DEBUG
+        randomTonesTotal.append(randomTonesChord)
+        print('randomTonesTotal in chord loop is ', randomTonesTotal)   ##DEBUG
+    return randomTonesTotal
 
-# calls randomizer and returns
-def notePrinter(chordTuple):
-    timeSig = 4 # hardcode 4/4 until implementing variable time signature
+    # compare last tone in chord n with first tone in chord n+1
 
 # returns tuple thirdsStack of chord tones via chordTuple lookup in FIFTHS
 def chordToneFinder(chordTuple):
@@ -211,10 +230,15 @@ def main():
     #print("chordList is: ",chordList)                            ## DEBUG
     tupleList = listUnpacker(chordList)
     #print("tupleList is: ",tupleList)                            ## DEBUG
+    tonesTupleList = []
     for chord in tupleList:
         #print("Chord tuple is: ",chord)                            ## DEBUG
-        chordToneFinder(chord)
-        print(chordToneFinder(chord))
+        tones = chordToneFinder(chord) # returns tuple with chord tones
+        #print('Tones output in main function is', tones)       ## DEBUG
+        tonesTupleList.append(tones)
+    print('tonesTupleList in main is ', tonesTupleList)         ## DEBUG
+    # take list of tone tuples and send to noteFinder
+    print('noteFinder call in main returned: ',noteFinder(tonesTupleList))
 
 
 
