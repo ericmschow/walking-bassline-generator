@@ -13,6 +13,7 @@
 #### implement common tones
 #### implement chromatic approach tones
 #### implement tempo and timesig
+####    * tempo function needs to generate dict with note samples
 #### refactor into classes
 ####    * chord has quality, third/fifth/seventh
 #### implement sound library
@@ -21,6 +22,10 @@
 #### develop gui
 
 from random import randint
+import numpy as np
+import simpleaudio as sa
+
+sample_rate = 44100
 
 # dict holding chord quality and tuple as number of semitones above root
 # circle of fifths for reference : https://i.imgur.com/ZwMH969.png
@@ -52,21 +57,46 @@ NOTES = {
     'Bb' : 10,
     'B' : 11
 }
-# dict holding numbers 0-11 and notes C-B ## replaced with NOTESLIST
-INVERSE = {
-    0 : 'C',
-    1 : 'C#/Db',
-    2 : 'D',
-    3 : 'D#/Eb',
-    4 : 'E',
-    5 : 'F',
-    6 : 'F#/Gb',
-    7 : 'G',
-    8 : 'G#/Ab',
-    9 : 'A',
-    10 : 'A#/Bb',
-    11 : 'B'
+
+# dict holding note names and frequencies
+FREQS = {
+    'C' : 32.7,
+    'C#/Db' : 34.65,
+    'Db' : 34.65,
+    'D' : 36.71,
+    'D#/Eb' : 38.89,
+    'Eb' : 38.89,
+    'E' : 41.20,
+    'F' : 43.65,
+    'F#/Gb' : 46.25,
+    'Gb' : 45.25,
+    'G' : 49,
+    'G#/Ab' : 51.91,
+    'Ab' : 51.91,
+    'A' : 55,
+    'A#/Bb' : 58.27,
+    'Bb' : 58.27,
+    'B' : 61.74
 }
+
+# empty dict to be initialized by toneDictGenerator with audio data
+TONEDICT = {}
+
+# dict holding numbers 0-11 and notes C-B ## replaced with NOTESLIST
+# INVERSE = {
+#     0 : 'C',
+#     1 : 'C#/Db',
+#     2 : 'D',
+#     3 : 'D#/Eb',
+#     4 : 'E',
+#     5 : 'F',
+#     6 : 'F#/Gb',
+#     7 : 'G',
+#     8 : 'G#/Ab',
+#     9 : 'A',
+#     10 : 'A#/Bb',
+#     11 : 'B'
+# }
 
 # dict holding circle of fifths starting with 0 : C for calculating thirds
 FIFTHS = {
@@ -89,6 +119,18 @@ NOTESLIST = [
 "C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "G#/Ab", "A", "A#/Bb", "B"
 ]
 
+class Chord:
+    def __init__(self, root, quality):
+        self.root = root
+        self.quality = quality
+
+class Major(Chord):
+    def __init__():
+        pass
+
+
+
+
 # prompts user for chords and returns string in format 'C Am F G'
 def chordPrompter():
     chords = input("Please enter the chords, in format e.g. C Am F G:\n> ")
@@ -104,6 +146,25 @@ def chordPrompter():
 # currently unused
 #def tempoPrompter():
 #    pass
+
+# takes tempo in BPM and generates sample library
+def toneDictGenerator(tempo):
+    # get timesteps for each sample, T is note duration in seconds
+    global TONEDICT
+    octaver = 2 # adjusts octave of playback by factor of octaver
+    T = 60/tempo # gets length of note in seconds, e.g. 120 bpm * 1m/60s
+    t = np.linspace(0, T, T * sample_rate, False)
+    for note in NOTESLIST:
+        print('Generating sample for ', note)
+        # generate sine wave notes
+        tone = np.sin(FREQS[note] * octaver * t * 2 * np.pi)
+        # concatenate notes
+        audio = np.hstack((tone))
+        # normalize to 16-bit range
+        audio *= 32767 / np.max(np.abs(audio))
+        # convert to 16-bit data
+        audio = audio.astype(np.int16)
+        TONEDICT[note] = audio
 
 # parses user string for desired chords, places into list and returns
 def chordParser(arg):
@@ -234,8 +295,20 @@ def chordToneFinder(chordTuple):
         return thirdsStack
     # etc with other qualities later
 
+
+# takes note name input and plays sound
+def tonePlayer(note):
+    # start playback
+    play_obj = sa.play_buffer(TONEDICT[note], 1, 2, sample_rate)
+    # wait for playback to finish before exiting
+    play_obj.wait_done()
+
 def main():
+
     timeSig = 4 #hardcode to 4 for now, later get from call to timeSigParser
+    tempo = 120 #hardcode to 120 for now
+    print("Generating audio samples...")
+    toneDictGenerator(tempo)
     chordList = chordParser(chordPrompter())
     #print("chordList is: ",chordList)                            ## DEBUG
     tupleList = listUnpacker(chordList)
@@ -254,6 +327,8 @@ def main():
     for chord in randomizedList:
         if timeSig == 4:
             print("|| {} | {} | {} | {} |".format(chord[0], chord[1], chord[2], chord[3]))
+            for note in chord:
+                tonePlayer(note)
     #     note = ''
     #     outputString = ''
     #     for note in chord:
