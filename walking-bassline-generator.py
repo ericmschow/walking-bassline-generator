@@ -8,8 +8,17 @@
 # i.e. a major third is the root shifted up by 5 fifths
 # but for now it will be functional programming
 
-# NEED IMPLEMENT FIFTHS -> NOTES USING INVERSE DICT
-# OR BRING CHORD NAME FROM STRING
+#### TODO:
+#### create proper output
+#### implement common tones
+#### implement chromatic approach tones
+#### implement tempo and timesig
+#### refactor into classes
+####    * chord has quality, third/fifth/seventh
+#### implement sound library
+####    * one sound w/ transpose? 12 sound files? generate sin waves?
+#### host on website
+#### develop gui
 
 from random import randint
 
@@ -167,7 +176,7 @@ def noteFinder(tonesTupleList):
     timeSig = 4 #hardcode 4/4 until implementing variable time signature
     randomTonesTotal = []
     for chord in tonesTupleList:
-        print('Chord tone tuple at start of noteFinder For loop is: ',chord)            ## DEBUG
+        #print('Chord tone tuple at start of noteFinder For loop is: ',chord)            ## DEBUG
         randomTonesChord = []
         for i in range(timeSig):  #iterate for number of beats in measure
             note = chord[randint(0, len(chord)-1)] # randomly pick from notes in chord
@@ -179,12 +188,12 @@ def noteFinder(tonesTupleList):
             #     print("while loop in noteFinder triggered.")        ##DEBUG
             else:
                 while note == randomTonesChord[i-1]:
-                    print("While loop in noteFinder triggered on note ", note)         ## DEBUG
+                    #print("While loop in noteFinder triggered on note ", note)         ## DEBUG
                     note = chord[randint(0, len(chord)-1)]
             randomTonesChord.append(note)
-            print ('randomTonesChord in i loop is ', randomTonesChord)  ##DEBUG
+            #print ('randomTonesChord in i loop is ', randomTonesChord)  ##DEBUG
         randomTonesTotal.append(randomTonesChord)
-        print('randomTonesTotal in chord loop is ', randomTonesTotal)   ##DEBUG
+        #print('randomTonesTotal in chord loop is ', randomTonesTotal)   ##DEBUG
     return randomTonesTotal
 
     # compare last tone in chord n with first tone in chord n+1
@@ -226,6 +235,7 @@ def chordToneFinder(chordTuple):
     # etc with other qualities later
 
 def main():
+    timeSig = 4 #hardcode to 4 for now
     chordList = chordParser(chordPrompter())
     #print("chordList is: ",chordList)                            ## DEBUG
     tupleList = listUnpacker(chordList)
@@ -236,9 +246,24 @@ def main():
         tones = chordToneFinder(chord) # returns tuple with chord tones
         #print('Tones output in main function is', tones)       ## DEBUG
         tonesTupleList.append(tones)
-    print('tonesTupleList in main is ', tonesTupleList)         ## DEBUG
+    #print('tonesTupleList in main is ', tonesTupleList)         ## DEBUG
+    randomizedList = []
     # take list of tone tuples and send to noteFinder
-    print('noteFinder call in main returned: ',noteFinder(tonesTupleList))
+    randomizedList = noteFinder(tonesTupleList)
+    #print('noteFinder call in main returned: ', randomizedList)
+    for chord in randomizedList:
+        if timeSig == 4:
+            print("| {} | {} | {} | {}".format(chord[0], chord[1], chord[2], chord[3]))
+    #     note = ''
+    #     outputString = ''
+    #     for note in chord:
+    #         #string = '{} |'.format(note)
+    #         outputString = ' | '.join(note)
+    #         print('string is ', note)
+    #         print('outputString is ', outputString)
+    #     print('| ',outputString)
+
+
 
 
 
