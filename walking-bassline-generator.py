@@ -235,7 +235,7 @@ def chordToneFinder(chordTuple):
     # etc with other qualities later
 
 def main():
-    timeSig = 4 #hardcode to 4 for now
+    timeSig = 4 #hardcode to 4 for now, later get from call to timeSigParser
     chordList = chordParser(chordPrompter())
     #print("chordList is: ",chordList)                            ## DEBUG
     tupleList = listUnpacker(chordList)
@@ -253,7 +253,7 @@ def main():
     #print('noteFinder call in main returned: ', randomizedList)
     for chord in randomizedList:
         if timeSig == 4:
-            print("| {} | {} | {} | {}".format(chord[0], chord[1], chord[2], chord[3]))
+            print("|| {} | {} | {} | {} |".format(chord[0], chord[1], chord[2], chord[3]))
     #     note = ''
     #     outputString = ''
     #     for note in chord:
