@@ -123,10 +123,11 @@ class Chord:
     def __init__(self, root, quality):
         self.root = root
         self.quality = quality
+        self.notes = CHORDS[0]
 
 class Major(Chord):
     def __init__():
-        pass
+        super().__init__()
 
 
 
@@ -151,7 +152,7 @@ def chordPrompter():
 def toneDictGenerator(tempo):
     # get timesteps for each sample, T is note duration in seconds
     global TONEDICT
-    octaver = 2 # adjusts octave of playback by factor of octaver
+    octaver = 4 # adjusts octave of playback by factor of octaver
     T = 60/tempo # gets length of note in seconds, e.g. 120 bpm * 1m/60s
     t = np.linspace(0, T, T * sample_rate, False)
     for note in NOTESLIST:
@@ -307,8 +308,7 @@ def main():
 
     timeSig = 4 #hardcode to 4 for now, later get from call to timeSigParser
     tempo = 120 #hardcode to 120 for now
-    print("Generating audio samples...")
-    toneDictGenerator(tempo)
+
     chordList = chordParser(chordPrompter())
     #print("chordList is: ",chordList)                            ## DEBUG
     tupleList = listUnpacker(chordList)
@@ -337,6 +337,12 @@ def main():
     #         print('string is ', note)
     #         print('outputString is ', outputString)
     #     print('| ',outputString)
+    again = input("Would you like enter more chords? Y/N > ")
+    if 'y' in again.lower():
+        main()
+    if 'n' in again.lower():
+        print("Goodbye!")
+        quit()
 
 
 
@@ -345,4 +351,6 @@ def main():
 
 
 if __name__ == '__main__':
+    print("Generating audio samples...")
+    toneDictGenerator(80)
     main()
