@@ -39,7 +39,7 @@ class Info():
     }
 
     # dict holding note names and number 0-11 for later calculating distance
-    NOTES = {
+    NOTESTONUMS = {
         'C' : 0,
         'C#' : 1,
         'Db' : 1,
@@ -59,7 +59,7 @@ class Info():
         'B' : 11
     }
 
-    # dict holding note names and frequencies
+    # dict holding note names and frequencies for sample generation
     FREQS = {
         'C' : 32.7,
         'C#/Db' : 34.65,
@@ -82,22 +82,6 @@ class Info():
 
     # empty dict to be initialized by toneDictGenerator with audio data
     TONEDICT = {}
-
-    # dict holding numbers 0-11 and notes C-B ## replaced with info.NOTESLIST
-    # INVERSE = {
-    #     0 : 'C',
-    #     1 : 'C#/Db',
-    #     2 : 'D',
-    #     3 : 'D#/Eb',
-    #     4 : 'E',
-    #     5 : 'F',
-    #     6 : 'F#/Gb',
-    #     7 : 'G',
-    #     8 : 'G#/Ab',
-    #     9 : 'A',
-    #     10 : 'A#/Bb',
-    #     11 : 'B'
-    # }
 
     # dict holding circle of fifths starting with 0 : C for calculating thirds
     FIFTHS = {
@@ -127,9 +111,13 @@ class Chord:
     #    print('chordlistitem in class is ',chordListItem)
         self.rootname = self.rootFinder(chordListItem)
     #    print('rootname in class is ',self.rootname)
-        self.rootnum = info.NOTES[self.rootname]
+        self.rootnum = info.NOTESTONUMS[self.rootname]
         self.quality = self.qualityFinder(chordListItem)
         self.notes = info.CHORDS[self.quality]
+        self.thirdnum = self.notes[1]
+        self.fifthnum = self.notes[2]
+        if self.quality != 'major' and self.quality != 'minor':
+            self.seventhnum = self.notes[3]
         self.name = "{} {}".format(self.rootname, self.quality)
         self.namedNotesTuple = self.chordToneFinder()
     #    print('self.notes in class is ',self.notes)
@@ -137,8 +125,15 @@ class Chord:
         self.namedNotesList = list()
         for note in self.namedNotesTuple:
             self.namedNotesList.append(note)
+        self.thirdname = self.namedNotesList[1]
+        self.fifthname = self.namedNotesList[2]
+        if self.quality != 'major' and self.quality != 'minor':
+            self.seventhname = self.namedNotesList[3]
+        self.outputNotes = []
     #    print('self.namednotesList is ', self.namedNotesList)
     #    print('rootnum in class is ',self.rootnum)
+        print("thirdnum, fifthnum, seventhnum for {} chord are, {}, {}".format(self.rootname, self.thirdnum, self.fifthnum))
+        print("thirdname, fifthname, seventhname for {} chord are, {}, {}".format(self.rootname, self.thirdname, self.fifthname))
 
 
 
@@ -232,10 +227,8 @@ class Chord:
             return thirdsStack
         # etc with other qualities later
 
-
-    # noteRandomizer eturns list of randomized notes
-    def noteRandomizer(tonesTupleList):
-    #    global info
+    # noteRandomizer returns list of randomized notes  CURRENTLY UNUSED AGAIN
+    def noteRandomizer(self,tonesTupleList):
         timeSig = 4 #hardcode 4/4 until implementing variable time signature
         randomTonesTotal = []
         for chord in tonesTupleList:
@@ -259,12 +252,29 @@ class Chord:
             #print('randomTonesTotal in chord loop is ', randomTonesTotal)   ##DEBUG
         return randomTonesTotal
 
-class Major(Chord):
-    def __init__():
-        super().__init__()
+    # returns note a half-step below given note takes string input
+    def chromaticFlat(self, note):
+        approachTone = info.NOTESLIST[(info.NOTESTONUMS[note]+11) % 12]
+        print("flat approach tone is: ", approachTone)      ##DEBUG
 
+    # returns note a half-step below given note takes string input
+    def chromaticSharp(self, note):
+        approachTone = info.NOTESLIST[(info.NOTESTONUMS[note]+1) % 12]
+        print("sharp approach tone is: ", approachTone)     ##DEBUG
 
+    # checks whether target note is more than X notes away from last
+    def rangeChecker(self, note1, note2):
+        pass
 
+    # makes note objects from chord namedNotesList
+    def noteObjectMaker(self):
+        for note in self.namedNotesList:
+            n = Note(note, info)
+            self.notesObjectsList.push(n)
+
+class Note:
+    def __init__(self, note, info):
+        self.name = note.
 
 # prompts user for chords and returns string in format 'C Am F G'
 def chordPrompter():
@@ -326,117 +336,6 @@ def listUnpacker(arg):
         chordList.append(chordInfo)
     return chordList
 
-# reads list item and returns chord root as semitones from C
-def rootFinder(chordListItem):
-    #print("chordListItem in rootFinder is: ", chordListItem)    ##DEBUG
-    global info
-    info = Info()
-    if type(chordListItem == str):
-        if len(chordListItem) == 1:
-            root = info.NOTES[chordListItem[0].upper()]
-            #print("Notes lookup for root in rootFinder is: ",root)    ## DEBUG
-        elif len(chordListItem) == 2 and chordListItem[1] != 'm': #gets flats/sharps
-            compoundRoot = '{}{}'.format(chordListItem[0].upper(),
-                chordListItem[1].lower())
-            #print("compoundRoot in rootFinder is: ",compoundRoot)                     ## DEBUG
-            #print("Notes lookup for root is: ",info.NOTES[compoundRoot])              ## DEBUG
-            return info.NOTES[compoundRoot]
-        elif len(chordListItem) == 2 and chordListItem[1] == 'm': #eg Am, Em
-            root = info.NOTES[chordListItem[0].upper()]
-            #print("Notes lookup for minor root is: ", root)         ## DEBUG
-        elif len(chordListItem) == 5:
-            root = info.NOTES[chordListItem[0].upper()]
-        elif len(chordListItem) == 6:
-            compoundRoot = '{}{}'.format(chordListItem[0].upper(),
-                chordListItem[1].lower())
-        #    print("compoundRoot in rootFinder is: ",compoundRoot)                     ## DEBUG
-        #    print("Notes lookup for root is: ",info.NOTES[compoundRoot])              ## DEBUG
-            return info.NOTES[compoundRoot]
-
-        else:
-            print("Error in rootFinder function string block.")
-    if type(chordListItem == tuple):
-        return info.NOTES[chordListItem[0]]
-
-# reads list item and returns chord quality
-def qualityFinder(chordListItem):
-    global info
-    if 'maj7' in chordListItem.lower():
-        return 'maj7'
-    elif 'min7' in chordListItem.lower():
-        return 'min7'
-    elif 'dom7' in chordListItem.lower():
-        return 'dom7'
-    elif 'm' in chordListItem.lower():
-        return 'minor'
-    else:
-        return 'major'
-
-# returns list of randomized notes
-def noteFinder(tonesTupleList):
-    global info
-    timeSig = 4 #hardcode 4/4 until implementing variable time signature
-    randomTonesTotal = []
-    for chord in tonesTupleList:
-        #print('Chord tone tuple at start of noteFinder For loop is: ',chord)            ## DEBUG
-        randomTonesChord = []
-        for i in range(timeSig):  #iterate for number of beats in measure
-            note = chord[randint(0, len(chord)-1)] # randomly pick from notes in chord
-            # if block here is to prevent notes from being repeated
-            if len(randomTonesChord) == 0:  # if no tone in list already
-                pass # no need to check anything
-            # except IndexError:
-            #     randomTonesChord.append(note)
-            #     print("while loop in noteFinder triggered.")        ##DEBUG
-            else:
-                while note == randomTonesChord[i-1]:
-                    #print("While loop in noteFinder triggered on note ", note)         ## DEBUG
-                    note = chord[randint(0, len(chord)-1)]
-            randomTonesChord.append(note)
-            #print ('randomTonesChord in i loop is ', randomTonesChord)  ##DEBUG
-        randomTonesTotal.append(randomTonesChord)
-        #print('randomTonesTotal in chord loop is ', randomTonesTotal)   ##DEBUG
-    return randomTonesTotal
-
-    # compare last tone in chord n with first tone in chord n+1
-
-# returns tuple thirdsStack of chord tones via chordTuple lookup in FIFTHS
-def chordToneFinder(chordTuple):
-    quality = chordTuple[1]
-    tones = CHORDS[quality]
-    #print("tuple in chordToneFinder is: ", chordTuple)          ## DEBUG
-    #print("tones in chordToneFinder is: ", tones)               ## DEBUG
-    if quality == 'major' or quality == 'minor':
-        root = (tones[0] + chordTuple[0] ) % 12
-        third = ((tones[1] + chordTuple[0]) ) % 12
-        fifth = ((tones[2] + chordTuple[0]) ) % 12
-        octave = ((tones[3] + chordTuple[0]) ) % 12
-        #print("Root, third, fifth, octave: ", root, third, fifth, octave)##DEBUG
-        thirdsStack = (
-        info.NOTESLIST[root],
-        info.NOTESLIST[third],
-        info.NOTESLIST[fifth],
-        info.NOTESLIST[octave])
-        #print("thirdsStack in chordToneFinder is: ", thirdsStack)  ##DEBUG
-        return thirdsStack
-    elif quality == 'min7' or quality == 'maj7' or quality == 'dom7':
-        root = (tones[0] + chordTuple[0] ) % 12
-        third = ((tones[1] + chordTuple[0]) ) % 12
-        fifth = ((tones[2] + chordTuple[0]) ) % 12
-        seventh = (tones[3] + chordTuple[0]) % 12
-        octave = ((tones[4] + chordTuple[0]) ) % 12
-        #print("Root, third, fifth, seventh octave: ", root, third, fifth, seventh octave)##DEBUG
-        thirdsStack = (
-        info.NOTESLIST[root],
-        info.NOTESLIST[third],
-        info.NOTESLIST[fifth],
-        info.NOTESLIST[seventh],
-        info.NOTESLIST[octave])
-        #print("thirdsStack in chordToneFinder is: ", thirdsStack)  ##DEBUG
-        return thirdsStack
-    # etc with other qualities later
-
-
 # takes note name input and plays sound
 def tonePlayer(note, info):
     info = info
@@ -446,46 +345,6 @@ def tonePlayer(note, info):
     play_obj.wait_done()
 
 def main():
-
-    timeSig = 4 #hardcode to 4 for now, later get from call to timeSigParser
-    tempo = 120 #hardcode to 120 for now
-
-    chordList = chordParser(chordPrompter())
-    print("chordList is: ",chordList)                            ## DEBUG
-    tupleList = listUnpacker(chordList)
-    print("tupleList is: ",tupleList)                            ## DEBUG
-    tonesTupleList = []
-    for chord in tupleList:
-        print("Chord tuple is: ",chord)                            ## DEBUG
-        tones = chordToneFinder(chord) # returns tuple with chord tones
-        print('Tones output in main function is', tones)       ## DEBUG
-        tonesTupleList.append(tones)
-    print('tonesTupleList in main is ', tonesTupleList)         ## DEBUG
-    randomizedList = []
-    # take list of tone tuples and send to noteFinder
-    randomizedList = noteFinder(tonesTupleList)
-    print('noteFinder call in main returned: ', randomizedList)
-    for chord in randomizedList:
-        if timeSig == 4:
-            print("|| {} | {} | {} | {} |".format(chord[0], chord[1], chord[2], chord[3]))
-            for note in chord:
-                tonePlayer(note)
-    #     note = ''
-    #     outputString = ''
-    #     for note in chord:
-    #         #string = '{} |'.format(note)
-    #         outputString = ' | '.join(note)
-    #         print('string is ', note)
-    #         print('outputString is ', outputString)
-    #     print('| ',outputString)
-    again = input("Would you like enter more chords? Y/N > ")
-    if 'y' in again.lower():
-        main()
-    if 'n' in again.lower():
-        print("Goodbye!")
-        quit()
-
-def main2(): # temp name for getting classes working
     timeSig = 4 #hardcode to 4 for now, later get from call to timeSigParser
     tempo = 120 #hardcode to 120 for now
     info = Info()
@@ -501,8 +360,15 @@ def main2(): # temp name for getting classes working
     if timeSig == 4:
         for chord in chordclasses:
             print("|| {} | {} | {} | {} |".format(chord.namedNotesList[0], chord.namedNotesList[1], chord.namedNotesList[2], chord.namedNotesList[3]))
-            for note in chord.namedNotesList:
-                tonePlayer(note, info)
+            # for note in chord.namedNotesList:
+        #    for i in range(timeSig):
+        #        tonePlayer(chord.namedNotesList[i], info)
+    again = input("Would you like enter more chords? Y/N > ")
+    if 'y' in again.lower():
+        main()
+    if 'n' in again.lower():
+        print("Goodbye!")
+        quit()
 
 
 
@@ -510,6 +376,6 @@ def main2(): # temp name for getting classes working
 
 if __name__ == '__main__':
     info = Info()
-    print("Generating audio samples...")
-    toneDictGenerator(80)
-    main2()
+    #print("Generating audio samples...")
+    #toneDictGenerator(80)
+    main()
