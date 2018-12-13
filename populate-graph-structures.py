@@ -14,7 +14,8 @@ INTERVALS = {
     'm6': 8,
     'M6': 9,
     'm7': 10,
-    'M7': 11
+    'M7': 11,
+    'OC': 12
 }
 
 def getNextNote(inpt):
@@ -52,6 +53,7 @@ def generateGraph():
 
 def main():
     import graphs
+    # generateGraph()/
     print(graphs.notesgraph['C']['P5'])
 
 if __name__ == '__main__':
