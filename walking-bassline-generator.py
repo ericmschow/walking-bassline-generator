@@ -261,13 +261,7 @@ def tonePlayer(note):
     # wait for playback to finish before exiting
     play_obj.wait_done()
 
-def main():
-    timeSig = 4 #hardcode to 4 for now, later get from call to timeSigParser
-    tempo = 120 #hardcode to 120 for now
-    song = Song(tempo, timeSig)
-    # info = Info()
-    print("Generating audio samples...")
-    # toneDictGenerator(song.tempo)
+def main(song):
     # with open('./tones.py', 'w') as f:
         # np.savetxt(f, np.column_stack(dicts.TONEDICT), fmt='%U6f')
         # print('wrote tones')
@@ -285,11 +279,11 @@ def main():
         for measure in song.measures:
             print("|| {} | {} | {} | {} |".format(*measure.notes))
             # for note in chord.namedNotesList:
-        #    for i in range(timeSig):
-        #        tonePlayer(chord.namedNotesList[i], info)
+            for i in range(timeSig):
+                tonePlayer(measure.notes[i])
     again = input("Would you like enter more chords? Y/N > ")
     if 'y' in again.lower():
-        main()
+        main(Song(song.temp, song.timeSig))
     if 'n' in again.lower():
         print("Goodbye!")
         quit()
@@ -300,4 +294,10 @@ def main():
 
 if __name__ == '__main__':
     info = dicts
-    main()
+    timeSig = 4 #hardcode to 4 for now, later get from call to timeSigParser
+    tempo = 120 #hardcode to 120 for now
+    song = Song(tempo, timeSig)
+    # info = Info()
+    print("Generating audio samples...")
+    toneDictGenerator(song.tempo)
+    main(song)
